@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('patternToggle').addEventListener('click', () => {
     const button = document.getElementById('patternToggle');
     const body = document.body;
+    const tooltip = document.getElementById('patternToggleTooltip');
     
     // Play toggle sound
     playToggleSound();
@@ -128,11 +129,9 @@ document.getElementById('patternToggle').addEventListener('click', () => {
     body.classList.toggle('desaturated');
     
     if (button.classList.contains('active')) {
-        button.innerHTML = '<i class="ri-palette-line"></i>';
-        button.title = 'Toggle Color View';
+        button.innerHTML = '<i class="ri-palette-line"></i><span class="absolute bottom-full left-full ml-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50" id="patternToggleTooltip">To Pattern View</span>';
     } else {
-        button.innerHTML = '<i class="ri-eye-line"></i>';
-        button.title = 'Toggle Pattern View';
+        button.innerHTML = '<i class="ri-eye-line"></i><span class="absolute bottom-full left-full ml-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50" id="patternToggleTooltip">To Color View</span>';
     }
     
     // Re-render the board to apply desaturation changes

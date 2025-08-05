@@ -44,11 +44,13 @@
             <!-- Logo above player info -->
             <div class="logo-container">
                 <img src="pat2.svg" alt="Game Logo" class="game-logo">
+                <span class="logo-subtitle">a pattern making game</span>
             </div>
             <!-- New Game Button opposite to logo -->
             <div class="new-game-container">
-                <button id="newGameBtn" class="new-game-btn" title="New Game">
+                <button id="newGameBtn" class="new-game-btn group relative">
                     <i class="ri-add-line"></i>
+                    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">New Game</span>
                 </button>
                 <!-- Player Selection Popover -->
                 <div id="playerSelectionPopover" class="player-selection-popover">
@@ -82,10 +84,19 @@
             </div>
             <div class="player-info" id="playerInfo"></div>
             <div class="game-board bg-gray-100 rounded-lg border-2 border-gray-300 shadow-xl" id="gameBoard"></div>
-            <button class="pattern-toggle bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full shadow-lg transition-all" id="patternToggle" title="Toggle Pattern View"><i class="ri-eye-line"></i></button>
+            <button class="pattern-toggle bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full shadow-lg transition-all group relative" id="patternToggle">
+                <i class="ri-eye-line"></i>
+                <span class="absolute bottom-full left-full ml-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50" id="patternToggleTooltip">To Color View</span>
+            </button>
             <div class="game-controls">
-                <button class="control-btn bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full shadow-md transition-all hover:-translate-y-1" id="rotateBtn" title="Rotate (R)"><i class="ri-refresh-line"></i></button>
-                <button class="control-btn bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full shadow-md transition-all hover:-translate-y-1" id="flipBtn" title="Flip (F)"><i class="ri-arrow-left-right-line"></i></button>
+                <button class="control-btn bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full shadow-md transition-all hover:-translate-y-1 group relative" id="rotateBtn">
+                    <i class="ri-refresh-line"></i>
+                    <span class="absolute bottom-full right-full mr-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">Rotate (R)</span>
+                </button>
+                <button class="control-btn bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full shadow-md transition-all hover:-translate-y-1 group relative" id="flipBtn">
+                    <i class="ri-arrow-left-right-line"></i>
+                    <span class="absolute bottom-full right-full mr-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">Flip (F)</span>
+                </button>
             </div>
         </div>
     </div>
