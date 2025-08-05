@@ -13,6 +13,9 @@ function handleKeyboardControls(e) {
     } else if (e.code === 'KeyF' || e.keyCode === 70) {
         e.preventDefault();
         flipPiece();
+    } else if (e.code === 'KeyZ' || e.keyCode === 90) {
+        e.preventDefault();
+        undoLastMove();
     }
 }
 
@@ -31,6 +34,7 @@ function initKeyboardControls() {
     // Prevent buttons from stealing keyboard focus
     const rotateBtn = document.getElementById('rotateBtn');
     const flipBtn = document.getElementById('flipBtn');
+    const undoBtn = document.getElementById('undoBtn');
     
     if (rotateBtn) {
         rotateBtn.tabIndex = -1; // Remove from tab order
@@ -42,6 +46,13 @@ function initKeyboardControls() {
     if (flipBtn) {
         flipBtn.tabIndex = -1; // Remove from tab order
         flipBtn.addEventListener('focus', () => {
+            document.body.focus();
+        });
+    }
+    
+    if (undoBtn) {
+        undoBtn.tabIndex = -1; // Remove from tab order
+        undoBtn.addEventListener('focus', () => {
             document.body.focus();
         });
     }
@@ -74,6 +85,7 @@ function flipPiece() {
 document.getElementById('newGameBtn').addEventListener('click', showPlayerSelectionPopover);
 document.getElementById('rotateBtn').addEventListener('click', rotatePiece);
 document.getElementById('flipBtn').addEventListener('click', flipPiece);
+document.getElementById('undoBtn').addEventListener('click', undoLastMove);
 
 // Player selection popover functionality
 function showPlayerSelectionPopover() {
@@ -151,6 +163,38 @@ document.getElementById('gameBoard').addEventListener('mouseleave', () => {
             });
         }
     });
+});
+
+// Click handler to clear group highlights when clicking outside the game board
+document.addEventListener('click', (e) => {
+    const gameBoard = document.getElementById('gameBoard');
+    const gameArea = document.querySelector('.game-area');
+    
+    // If clicking outside the game area and no piece is selected, clear group highlights
+    if (!gameArea.contains(e.target) && !game.selectedPiece && typeof clearAllGroupHighlights === 'function') {
+        clearAllGroupHighlights();
+    }
+    
+    // If clicking on a different cell that has a placed piece, clear current highlights
+    if (e.target.classList.contains('cell') && !game.selectedPiece && typeof clearAllGroupHighlights === 'function') {
+        const clickedCell = e.target;
+        const currentHighlightedCells = document.querySelectorAll('.cell.group-overlay-color, .cell.group-overlay-pattern');
+        
+        // If there are highlighted cells and we're clicking on a different cell
+        if (currentHighlightedCells.length > 0) {
+            let isClickingOnHighlightedCell = false;
+            currentHighlightedCells.forEach(highlightedCell => {
+                if (highlightedCell === clickedCell) {
+                    isClickingOnHighlightedCell = true;
+                }
+            });
+            
+            // If clicking on a different cell, clear highlights
+            if (!isClickingOnHighlightedCell) {
+                clearAllGroupHighlights();
+            }
+        }
+    }
 });
 
 // Start game when all scripts are loaded

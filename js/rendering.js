@@ -27,9 +27,17 @@ function renderBoard() {
                 cell.classList.add(`pattern-${gridCell.pattern}`, 'filled');
             }
             
-            cell.addEventListener('click', () => handleCellClick(i, j));
+            cell.addEventListener('click', (e) => {
+                // If a piece is selected, handle piece placement and stop propagation
+                if (game.selectedPiece && !game.gameOver) {
+                    handleCellClick(i, j);
+                    e.stopPropagation();
+                } else {
+                    // Otherwise, handle group highlighting
+                    handleCellGroupClick(i, j);
+                }
+            });
             cell.addEventListener('mouseenter', () => handleCellHover(i, j));
-            cell.addEventListener('mouseleave', () => handleCellLeave());
             
             // Add drag and drop functionality
             cell.addEventListener('dragover', (e) => {
@@ -184,6 +192,39 @@ function handleCellClick(row, col) {
     }
 }
 
+function handleCellGroupClick(row, col) {
+    // Only handle group highlighting if clicking on a placed piece and no piece is selected
+    if (game.grid[row][col] && !game.selectedPiece) {
+        const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+        
+        // Check if color and pattern groups are identical
+        const gameCell = game.grid[row][col];
+        const colorGroup = findGroup(row, col, 'color', gameCell.color);
+        const patternGroup = findGroup(row, col, 'pattern', gameCell.pattern);
+        const colorGroupSet = new Set(colorGroup.map(([r, c]) => `${r},${c}`));
+        const patternGroupSet = new Set(patternGroup.map(([r, c]) => `${r},${c}`));
+        const groupsIdentical = colorGroupSet.size === patternGroupSet.size && 
+                               [...colorGroupSet].every(cell => patternGroupSet.has(cell));
+        
+        // Check current state and cycle through: none -> color -> (pattern if different) -> none
+        if (!cell.classList.contains('group-overlay-color') && !cell.classList.contains('group-overlay-pattern')) {
+            // No highlights currently - show color group
+            showColorGroupOnly(row, col);
+        } else if (cell.classList.contains('group-overlay-color')) {
+            // Currently showing color - switch to pattern (if different) or clear
+            if (groupsIdentical) {
+                // Groups are identical, so clear instead of showing pattern
+                clearAllGroupHighlights();
+            } else {
+                showPatternGroupOnly(row, col);
+            }
+        } else {
+            // Currently showing pattern - clear all
+            clearAllGroupHighlights();
+        }
+    }
+}
+
 function handleCellHover(row, col) {
     // Clear all previous highlights
     document.querySelectorAll('.cell').forEach(cell => {
@@ -197,12 +238,6 @@ function handleCellHover(row, col) {
             }
         }
     });
-
-    // If hovering over a placed piece and no piece is selected, highlight its groups
-    if (game.grid[row][col] && !game.selectedPiece) {
-        highlightGroups(row, col);
-        return;
-    }
 
     // Original hover logic for placing pieces
     if (!game.selectedPiece || game.gameOver) return;
@@ -241,6 +276,45 @@ function handleCellHover(row, col) {
             }
         }
     }
+}
+
+function showColorGroupOnly(row, col) {
+    const cell = game.grid[row][col];
+    if (!cell) return;
+
+    // Clear any existing highlights first
+    clearAllGroupHighlights();
+    
+    // Find color group
+    const colorGroup = findGroup(row, col, 'color', cell.color);
+    const isColorGroupClosed = isGroupCompletelyEnclosed(colorGroup, 'color', cell.color);
+    
+    // Check if color and pattern groups are identical
+    const patternGroup = findGroup(row, col, 'pattern', cell.pattern);
+    const colorGroupSet = new Set(colorGroup.map(([r, c]) => `${r},${c}`));
+    const patternGroupSet = new Set(patternGroup.map(([r, c]) => `${r},${c}`));
+    const groupsIdentical = colorGroupSet.size === patternGroupSet.size && 
+                           [...colorGroupSet].every(cell => patternGroupSet.has(cell));
+    
+    // Apply color overlay and show tooltip
+    applyColorOverlay(colorGroup);
+    showGroupTooltip(colorGroup, groupsIdentical ? 'both' : 'color', colorGroup.length, isColorGroupClosed);
+}
+
+function showPatternGroupOnly(row, col) {
+    const cell = game.grid[row][col];
+    if (!cell) return;
+
+    // Clear any existing highlights first
+    clearAllGroupHighlights();
+    
+    // Find pattern group
+    const patternGroup = findGroup(row, col, 'pattern', cell.pattern);
+    const isPatternGroupClosed = isGroupCompletelyEnclosed(patternGroup, 'pattern', cell.pattern);
+    
+    // Apply pattern overlay and show tooltip
+    applyPatternOverlay(patternGroup);
+    showGroupTooltip(patternGroup, 'pattern', patternGroup.length, isPatternGroupClosed);
 }
 
 function highlightGroups(row, col) {
@@ -342,6 +416,32 @@ function clearAllOverlays() {
         cell.classList.remove('group-overlay-color', 'group-overlay-pattern');
     });
 }
+
+function clearAllGroupHighlights() {
+    // Clear the alternating overlay interval
+    if (window.overlayInterval) {
+        clearInterval(window.overlayInterval);
+        window.overlayInterval = null;
+    }
+    
+    document.querySelectorAll('.cell').forEach(cell => {
+        // Remove old classes (backwards compatibility)
+        cell.classList.remove(
+            'highlight-edge-color', 
+            'highlight-edge-pattern', 
+            'highlight-edge-both'
+        );
+        
+        // Remove all overlay classes
+        cell.classList.remove('group-overlay-color', 'group-overlay-pattern');
+    });
+    
+    // Remove all tooltips
+    clearAllTooltips();
+}
+
+// Make the function available globally
+window.clearAllGroupHighlights = clearAllGroupHighlights;
 
 function clearAllTooltips() {
     document.querySelectorAll('.group-tooltip').forEach(tooltip => {
@@ -599,27 +699,18 @@ function findGroupExtremes(group) {
 }
 
 function handleCellLeave() {
-    // Only clear highlights if we're highlighting groups (not placing pieces)
-    if (!game.selectedPiece) {
-        // Clear the alternating overlay interval
-        if (window.overlayInterval) {
-            clearInterval(window.overlayInterval);
-            window.overlayInterval = null;
-        }
-        
+    // Only clear preview highlights for piece placement (not group highlights)
+    if (game.selectedPiece && !game.gameOver) {
         document.querySelectorAll('.cell').forEach(cell => {
-            // Remove old classes (backwards compatibility)
-            cell.classList.remove(
-                'highlight-edge-color', 
-                'highlight-edge-pattern', 
-                'highlight-edge-both'
-            );
-            
-            // Remove all overlay classes
-            cell.classList.remove('group-overlay-color', 'group-overlay-pattern');
+            cell.classList.remove('preview', 'invalid');
+            if (!game.grid[cell.dataset.row][cell.dataset.col]) {
+                cell.style.backgroundColor = '';
+                const r = parseInt(cell.dataset.row);
+                const c = parseInt(cell.dataset.col);
+                if (!game.grid[r][c]) {
+                    cell.className = 'cell';
+                }
+            }
         });
-        
-        // Remove all tooltips
-        clearAllTooltips();
     }
 } 

@@ -338,6 +338,17 @@ body {
     overflow: hidden;
 }
 
+/* Add pointer cursor for placed cells when no piece is selected */
+.cell.filled {
+    cursor: pointer !important;
+}
+
+/* Also add pointer cursor for cells with group overlays */
+.cell.group-overlay-color,
+.cell.group-overlay-pattern {
+    cursor: pointer !important;
+}
+
 .cell.preview {
     opacity: 0.8;
     z-index: 10;

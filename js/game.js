@@ -8,7 +8,9 @@ let game = {
     pieceRotation: 0,
     pieceFlipped: false,
     gameOver: false,
-    firstPiecePlaced: false
+    firstPiecePlaced: false,
+    moveHistory: [],
+    isPlacingPiece: false
 };
 
 // Sound system
@@ -107,6 +109,11 @@ function initGame() {
 }
 
 function initGameWithPlayerCount(playerCount) {
+    // Clear any existing group highlights when starting a new game
+    if (typeof clearAllGroupHighlights === 'function') {
+        clearAllGroupHighlights();
+    }
+    
     game.grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
     game.currentPlayer = 0;
     game.marketplace = [];
@@ -115,6 +122,8 @@ function initGameWithPlayerCount(playerCount) {
     game.pieceFlipped = false;
     game.gameOver = false;
     game.firstPiecePlaced = false;
+    game.moveHistory = [];
+    game.isPlacingPiece = false;
     
     game.players = [];
     for (let i = 0; i < playerCount; i++) {
@@ -188,6 +197,17 @@ function canPlacePiece(piece, row, col) {
 function placePiece(piece, row, col) {
     const shape = piece.shape;
     
+    // Save current state for undo
+    const moveState = {
+        grid: JSON.parse(JSON.stringify(game.grid)),
+        currentPlayer: game.currentPlayer,
+        marketplace: JSON.parse(JSON.stringify(game.marketplace)),
+        players: JSON.parse(JSON.stringify(game.players)),
+        piece: { ...piece },
+        row: row,
+        col: col
+    };
+    
     // Check which groups exist and are enclosed BEFORE placing the piece
     const groupsBeforePlacement = getAllGroupsStatus();
     
@@ -200,6 +220,15 @@ function placePiece(piece, row, col) {
                     pattern: piece.pattern,
                     player: game.currentPlayer
                 };
+                
+                // Immediately update the DOM cell to add filled class and styling
+                const cellElement = document.querySelector(`[data-row="${row + i}"][data-col="${col + j}"]`);
+                if (cellElement) {
+                    cellElement.classList.add('filled', `pattern-${piece.pattern}`);
+                    if (!document.body.classList.contains('desaturated')) {
+                        cellElement.style.backgroundColor = piece.color;
+                    }
+                }
             }
         }
     }
@@ -279,9 +308,19 @@ function placePiece(piece, row, col) {
     game.pieceRotation = 0;
     game.pieceFlipped = false;
     
-    // Check if game is over
+    // Add move to history
+    game.moveHistory.push(moveState);
+    
+    // Check if game is over, but wait for score animation if there was a score
     if (!canAnyPieceBePlaced()) {
-        endGame();
+        if (score > 0) {
+            // Wait for score animation to complete before ending game
+            setTimeout(() => {
+                endGame();
+            }, 1500); // Match the duration of animateScoreCountUp
+        } else {
+            endGame();
+        }
     }
     
     // Don't render immediately to preserve animation
@@ -509,6 +548,28 @@ function canAnyPieceBePlaced() {
     }
     return false;
 }
+
+function undoLastMove() {
+    if (game.moveHistory.length === 0 || game.gameOver) return;
+    
+    // Get the last move state
+    const lastMove = game.moveHistory.pop();
+    
+    // Restore the game state
+    game.grid = lastMove.grid;
+    game.currentPlayer = lastMove.currentPlayer;
+    game.marketplace = lastMove.marketplace;
+    game.players = lastMove.players;
+    game.selectedPiece = null;
+    game.pieceRotation = 0;
+    game.pieceFlipped = false;
+    
+    // Re-render the game
+    render();
+}
+
+// Make undo function available globally
+window.undoLastMove = undoLastMove;
 
 function endGame() {
     game.gameOver = true;
