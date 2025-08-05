@@ -91,6 +91,9 @@ document.getElementById('patternToggle').addEventListener('click', () => {
         button.innerHTML = '<i class="ri-eye-line"></i>';
         button.title = 'Toggle Pattern View';
     }
+    
+    // Re-render the board to apply desaturation changes
+    render();
 });
 
 // Mouse leave handler to clear all previews and highlights

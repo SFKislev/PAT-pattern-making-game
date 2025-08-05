@@ -18,7 +18,12 @@ function renderBoard() {
             
             const gridCell = game.grid[i][j];
             if (gridCell) {
-                cell.style.backgroundColor = gridCell.color;
+                // Only set inline color if not in desaturated mode
+                if (!document.body.classList.contains('desaturated')) {
+                    cell.style.backgroundColor = gridCell.color;
+                } else {
+                    cell.style.backgroundColor = '';
+                }
                 cell.classList.add(`pattern-${gridCell.pattern}`, 'filled');
             }
             

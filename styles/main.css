@@ -364,11 +364,11 @@ body {
 }
 
 .desaturated .cell.filled.pattern-dots {
-    background-color: #999 !important;
+    background-color: #ccc !important;
 }
 
 .desaturated .cell.filled.pattern-boxes {
-    background-color: #777 !important;
+    background-color: #aaa !important;
 }
 
 .desaturated .cell.filled.pattern-diagonals {
@@ -380,11 +380,11 @@ body {
 }
 
 .desaturated .piece-cell.pattern-dots {
-    background-color: #999 !important;
+    background-color: #ccc !important;
 }
 
 .desaturated .piece-cell.pattern-boxes {
-    background-color: #777 !important;
+    background-color: #aaa !important;
 }
 
 .desaturated .piece-cell.pattern-diagonals {
@@ -396,11 +396,11 @@ body {
 }
 
 .desaturated .cell.preview.pattern-dots:not(.invalid) {
-    background-color: #999 !important;
+    background-color: #ccc !important;
 }
 
 .desaturated .cell.preview.pattern-boxes:not(.invalid) {
-    background-color: #777 !important;
+    background-color: #aaa !important;
 }
 
 .desaturated .cell.preview.pattern-diagonals:not(.invalid) {
