@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Pattern Matching Game</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Framer Motion for animations -->
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    
+    <!-- Alpine.js for reactive state -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/main.css">
+    
+    <script>
+        // Tailwind config
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'bounce-slow': 'bounce 2s infinite',
+                        'pulse-slow': 'pulse 3s infinite',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white text-gray-800">
+    <!-- Top Bar -->
+    <div class="top-bar bg-gray-50 border-b border-gray-200 shadow-sm">
+        <div class="player-info" id="playerInfo"></div>
+        <div class="settings">
+            <select id="playerCount" class="bg-gray-600 text-white rounded px-4 py-2">
+                <option value="2">2 Players</option>
+                <option value="3">3 Players</option>
+                <option value="4">4 Players</option>
+            </select>
+            <button id="newGame" class="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2 transition-colors">New Game</button>
+        </div>
+    </div>
+
+    <!-- Main Game Area -->
+    <div class="game-area">
+        <div class="game-board-container">
+            <div class="game-board bg-gray-100 rounded-lg border-2 border-gray-300 shadow-xl" id="gameBoard"></div>
+            <button class="pattern-toggle bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full shadow-lg transition-all" id="patternToggle" title="Toggle Pattern View"><i class="ri-eye-line"></i></button>
+            <div class="game-controls">
+                <button class="control-btn bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full shadow-md transition-all hover:-translate-y-1" id="rotateBtn" title="Rotate (R)"><i class="ri-refresh-line"></i></button>
+                <button class="control-btn bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full shadow-md transition-all hover:-translate-y-1" id="flipBtn" title="Flip (F)"><i class="ri-arrow-left-right-line"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Marketplace -->
+    <div class="marketplace-container bg-gray-50 border-t border-gray-200 shadow-lg">
+        <div class="marketplace-header text-gray-600 text-center mb-2">Select a piece to place</div>
+        <div class="pieces-container" id="marketplace"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/pieces.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/rendering.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html> 
