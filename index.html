@@ -40,7 +40,6 @@
 <body class="bg-white text-gray-800">
     <!-- Top Bar -->
     <div class="top-bar bg-gray-50 border-b border-gray-200 shadow-sm">
-        <div class="player-info" id="playerInfo"></div>
         <div class="settings">
             <select id="playerCount" class="bg-gray-600 text-white rounded px-4 py-2">
                 <option value="2">2 Players</option>
@@ -54,6 +53,7 @@
     <!-- Main Game Area -->
     <div class="game-area">
         <div class="game-board-container">
+            <div class="player-info" id="playerInfo"></div>
             <div class="game-board bg-gray-100 rounded-lg border-2 border-gray-300 shadow-xl" id="gameBoard"></div>
             <button class="pattern-toggle bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full shadow-lg transition-all" id="patternToggle" title="Toggle Pattern View"><i class="ri-eye-line"></i></button>
             <div class="game-controls">

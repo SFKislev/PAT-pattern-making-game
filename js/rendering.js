@@ -36,14 +36,67 @@ function renderBoard() {
     }
 }
 
+// Generate random gradient colors for player avatars
+function generateRandomGradient() {
+    const gradients = [
+        'linear-gradient(135deg, #e5e7eb, #d1d5db)',
+        'linear-gradient(135deg, #9ca3af, #6b7280)',
+        'linear-gradient(135deg, #f3f4f6, #e5e7eb)',
+        'linear-gradient(135deg, #6b7280, #4b5563)',
+        'linear-gradient(135deg, #d1d5db, #9ca3af)',
+        'linear-gradient(135deg, #f9fafb, #f3f4f6)',
+        'linear-gradient(135deg, #4b5563, #374151)',
+        'linear-gradient(135deg, #e5e7eb, #d1d5db)',
+        'linear-gradient(135deg, #9ca3af, #6b7280)',
+        'linear-gradient(135deg, #f3f4f6, #e5e7eb)',
+        'linear-gradient(135deg, #6b7280, #4b5563)',
+        'linear-gradient(135deg, #d1d5db, #9ca3af)'
+    ];
+    
+    return gradients[Math.floor(Math.random() * gradients.length)];
+}
+
 function renderPlayers() {
     const playerInfoEl = document.getElementById('playerInfo');
-    playerInfoEl.innerHTML = game.players.map((player, index) => `
-        <div class="player-score ${index === game.currentPlayer ? 'active' : ''}">
-            <span class="player-name" style="color: ${player.color}">${player.name}</span>
-            <span>${player.score}</span>
-        </div>
-    `).join('');
+    
+    // Ensure all players have different gradients
+    const usedGradients = new Set();
+    game.players.forEach((player, index) => {
+        if (!player.avatarGradient) {
+            let gradient;
+            do {
+                gradient = generateRandomGradient();
+            } while (usedGradients.has(gradient));
+            player.avatarGradient = gradient;
+            usedGradients.add(gradient);
+        }
+    });
+    
+    playerInfoEl.innerHTML = game.players.map((player, index) => {
+        return `
+            <div class="player-score ${index === game.currentPlayer ? 'active' : ''}">
+                <div class="player-avatar" style="background: ${player.avatarGradient}"></div>
+                <input type="text" class="player-name-input" value="${player.name}" data-player-index="${index}" placeholder="Player ${index + 1}">
+                <span>${player.score}</span>
+            </div>
+        `;
+    }).join('');
+    
+    // Add event listeners for name editing
+    document.querySelectorAll('.player-name-input').forEach(input => {
+        input.addEventListener('blur', function() {
+            const playerIndex = parseInt(this.dataset.playerIndex);
+            const newName = this.value.trim() || `Player ${playerIndex + 1}`;
+            game.players[playerIndex].name = newName;
+            this.value = newName;
+        });
+        
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                this.blur();
+            }
+        });
+    });
 }
 
 function renderMarketplace() {
