@@ -170,28 +170,21 @@ function highlightGroups(row, col) {
 
     // Find color group
     const colorGroup = findGroup(row, col, 'color', hoveredCell.color);
-    const colorEdges = findGroupEdges(colorGroup, 'color', hoveredCell.color);
-
+    
     // Find pattern group
     const patternGroup = findGroup(row, col, 'pattern', hoveredCell.pattern);
-    const patternEdges = findGroupEdges(patternGroup, 'pattern', hoveredCell.pattern);
-
-    // Apply highlights
-    colorEdges.forEach(([r, c]) => {
-        const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+    
+    // Combine both groups (remove duplicates)
+    const allCells = new Set();
+    colorGroup.forEach(([r, c]) => allCells.add(`${r},${c}`));
+    patternGroup.forEach(([r, c]) => allCells.add(`${r},${c}`));
+    
+    // Apply overlay to all cells in both groups
+    allCells.forEach(cellKey => {
+        const [row, col] = cellKey.split(',').map(Number);
+        const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
         if (cell) {
-            if (patternEdges.some(([pr, pc]) => pr === r && pc === c)) {
-                cell.classList.add('highlight-edge-both');
-            } else {
-                cell.classList.add('highlight-edge-color');
-            }
-        }
-    });
-
-    patternEdges.forEach(([r, c]) => {
-        const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-        if (cell && !cell.classList.contains('highlight-edge-both')) {
-            cell.classList.add('highlight-edge-pattern');
+            cell.classList.add('group-overlay');
         }
     });
 }
@@ -248,11 +241,53 @@ function findGroupEdges(group, type, value) {
     return edges;
 }
 
+function isGroupCompletelyEnclosed(group, type, value) {
+    // For each cell in the group, check if it has any empty adjacent cells
+    // or adjacent cells with different color/pattern
+    for (const [row, col] of group) {
+        const neighbors = [
+            [row - 1, col], [row + 1, col],
+            [row, col - 1], [row, col + 1]
+        ];
+        
+        for (const [nr, nc] of neighbors) {
+            // If neighbor is out of bounds, group can't expand there, so it's fine
+            if (nr < 0 || nr >= GRID_SIZE || nc < 0 || nc >= GRID_SIZE) continue;
+            
+            // If neighbor is empty, the group could potentially expand
+            if (!game.grid[nr][nc]) {
+                return false;
+            }
+            
+            // If neighbor has the same color/pattern, it should be part of the group
+            // If it's not in the group, that means we haven't captured the full group yet
+            if (game.grid[nr][nc][type] === value) {
+                const isInGroup = group.some(([r, c]) => r === nr && c === nc);
+                if (!isInGroup) {
+                    return false;
+                }
+            }
+            // If neighbor has different color/pattern, that's a valid boundary
+        }
+    }
+    
+    // All cells in the group are fully enclosed
+    return true;
+}
+
 function handleCellLeave() {
     // Only clear highlights if we're highlighting groups (not placing pieces)
     if (!game.selectedPiece) {
         document.querySelectorAll('.cell').forEach(cell => {
-            cell.classList.remove('highlight-edge-color', 'highlight-edge-pattern', 'highlight-edge-both');
+            // Remove old classes (backwards compatibility)
+            cell.classList.remove(
+                'highlight-edge-color', 
+                'highlight-edge-pattern', 
+                'highlight-edge-both'
+            );
+            
+            // Remove overlay class
+            cell.classList.remove('group-overlay');
         });
     }
 } 
