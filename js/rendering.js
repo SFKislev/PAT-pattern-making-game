@@ -31,6 +31,20 @@ function renderBoard() {
             cell.addEventListener('mouseenter', () => handleCellHover(i, j));
             cell.addEventListener('mouseleave', () => handleCellLeave());
             
+            // Add drag and drop functionality
+            cell.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+            cell.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const pieceId = e.dataTransfer.getData('text/plain');
+                const piece = game.marketplace.find(p => p.id === pieceId);
+                if (piece) {
+                    selectPiece(piece);
+                    handleCellClick(i, j);
+                }
+            });
+            
             boardEl.appendChild(cell);
         }
     }
@@ -133,6 +147,13 @@ function renderMarketplace() {
         
         pieceEl.appendChild(gridEl);
         pieceEl.addEventListener('click', () => selectPiece(piece));
+        
+        // Add drag functionality
+        pieceEl.draggable = true;
+        pieceEl.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', piece.id);
+            selectPiece(piece);
+        });
         
         marketplaceEl.appendChild(pieceEl);
     });
