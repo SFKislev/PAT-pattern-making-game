@@ -14,6 +14,105 @@ body {
     flex-direction: column;
 }
 
+/* Logo styling */
+.logo-container {
+    position: absolute;
+    bottom: calc(100% + 110px); /* Increased distance from player info box */
+    left: 0;
+    z-index: 20; /* Higher than player info z-index */
+}
+
+.game-logo {
+    width: 120px;
+    height: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* New Game Button styling */
+.new-game-container {
+    position: absolute;
+    bottom: calc(100% + 100px); /* Same level as logo */
+    right: 0;
+    z-index: 20;
+}
+
+.new-game-btn {
+    background: none;
+    color: #374151; /* gray-700 */
+    border: none;
+    padding: 12px;
+    cursor: pointer;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.new-game-btn:hover {
+    color: #000000; /* black on hover */
+    transform: translateY(-2px);
+}
+
+/* Player Selection Popover */
+.player-selection-popover {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 10px);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e5e7eb;
+    width: 200px;
+    z-index: 30;
+    display: none;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+.player-selection-popover.show {
+    display: block;
+}
+
+.popover-content {
+    padding: 12px 0;
+}
+
+.player-option {
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.player-option:hover {
+    background: #f9fafb;
+}
+
+.player-option.selected {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.player-count {
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+.player-circles {
+    display: flex;
+    gap: 4px;
+}
+
+.player-circle {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
 /* Top Bar */
 .top-bar {
     position: fixed;
@@ -402,15 +501,15 @@ body {
 @keyframes scorePopup {
     0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.5);
+        transform: translate(-50%, -50%);
     }
-    50% {
+    20% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1.2);
+        transform: translate(-50%, -50%);
     }
     100% {
         opacity: 0;
-        transform: translate(-50%, -50%) translateY(-50px) scale(1);
+        transform: translate(-50%, -50%) translateY(-30px);
     }
 }
 
@@ -511,13 +610,13 @@ body {
 }
 
 .enclosed {
-    animation: blink 2s ease;
+    animation: blink 4s ease;
     background-color: #fbbf24 !important;
     z-index: 20 !important;
 }
 
 .enclosed.multiple {
-    animation: blinkMultiple 1s ease;
+    animation: blinkMultiple 3s ease;
     background-color: #fbbf24 !important;
     outline: 2px solid #000;
     outline-offset: -2px;

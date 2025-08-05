@@ -71,15 +71,58 @@ function flipPiece() {
 }
 
 // Initialize controls
-document.getElementById('newGame').addEventListener('click', initGame);
+document.getElementById('newGameBtn').addEventListener('click', showPlayerSelectionPopover);
 document.getElementById('rotateBtn').addEventListener('click', rotatePiece);
 document.getElementById('flipBtn').addEventListener('click', flipPiece);
-document.getElementById('playerCount').addEventListener('change', initGame);
+
+// Player selection popover functionality
+function showPlayerSelectionPopover() {
+    const popover = document.getElementById('playerSelectionPopover');
+    popover.classList.add('show');
+}
+
+function hidePlayerSelectionPopover() {
+    const popover = document.getElementById('playerSelectionPopover');
+    popover.classList.remove('show');
+}
+
+function selectPlayerCount(playerCount) {
+    hidePlayerSelectionPopover();
+    
+    // Play new game sound
+    playNewGameSound();
+    
+    initGameWithPlayerCount(parseInt(playerCount));
+}
+
+// Initialize popover event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle player option clicks
+    document.querySelectorAll('.player-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const playerCount = this.getAttribute('data-players');
+            selectPlayerCount(playerCount);
+        });
+    });
+    
+    // Close popover when clicking outside
+    document.addEventListener('click', function(e) {
+        const popover = document.getElementById('playerSelectionPopover');
+        const newGameBtn = document.getElementById('newGameBtn');
+        
+        if (!popover.contains(e.target) && !newGameBtn.contains(e.target)) {
+            hidePlayerSelectionPopover();
+        }
+    });
+});
 
 // Pattern view toggle
 document.getElementById('patternToggle').addEventListener('click', () => {
     const button = document.getElementById('patternToggle');
     const body = document.body;
+    
+    // Play toggle sound
+    playToggleSound();
     
     button.classList.toggle('active');
     body.classList.toggle('desaturated');

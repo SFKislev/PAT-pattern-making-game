@@ -1,7 +1,7 @@
 // Game constants
 const GRID_SIZE = 15;
 const MARKETPLACE_SIZE = 7;
-const COLORS = ['#4A90E2', '#E74C3C', '#F1C40F']; // Blue, Red, Yellow
+const COLORS = ['#4A90E2', '#E74C3C', '#F2E642']; // Blue, Red, Yellow
 const PATTERNS = ['dots', 'boxes', 'diagonals'];
 
 // Tetris-like shapes - expanded set

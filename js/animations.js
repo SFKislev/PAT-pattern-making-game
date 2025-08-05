@@ -1,5 +1,30 @@
 // Animation utilities using Framer Motion
 
+// Count-up animation for score display
+function animateScoreCountUp(element, startValue, endValue, duration = 1500) {
+    console.log(`Starting count-up animation: ${startValue} -> ${endValue}`);
+    const startTime = performance.now();
+    
+    function updateScore(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Ease-out function
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        
+        const currentValue = Math.floor(startValue + (endValue - startValue) * easeOut);
+        element.textContent = currentValue;
+        
+        if (progress < 1) {
+            requestAnimationFrame(updateScore);
+        } else {
+            console.log(`Count-up animation completed: ${currentValue}`);
+        }
+    }
+    
+    requestAnimationFrame(updateScore);
+}
+
 // Animate piece selection
 function animatePieceSelection(pieceElement) {
     if (window.motion) {
@@ -27,44 +52,55 @@ function animatePiecePlacement(cells) {
 }
 
 // Animate score popup with enhanced effects
-function animateScorePopup(score) {
+function animateScorePopup(score, row, col) {
     const popup = document.createElement('div');
-    popup.className = 'score-popup bg-green-500 text-white px-6 py-3 rounded-lg font-bold text-xl shadow-lg';
+    popup.className = 'score-popup bg-gray-100 text-black px-4 py-2 rounded-lg font-bold text-sm shadow-lg';
+    popup.style.fontFamily = "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif";
     popup.textContent = `+${score}`;
     popup.style.position = 'fixed';
-    popup.style.left = '50%';
-    popup.style.top = '50%';
-    popup.style.transform = 'translate(-50%, -50%)';
     popup.style.zIndex = '1000';
+    
+    // Calculate the position on screen based on the grid cell
+    const gameBoard = document.querySelector('.game-board');
+    if (gameBoard) {
+        const boardRect = gameBoard.getBoundingClientRect();
+        const cellSize = 30; // 30px per cell
+        const cellGap = 1; // 1px gap between cells
+        const boardPadding = 10; // 10px padding around board
+        
+        // Calculate position relative to the board
+        const x = boardRect.left + boardPadding + (col * (cellSize + cellGap)) + (cellSize / 2);
+        const y = boardRect.top + boardPadding + (row * (cellSize + cellGap)) + (cellSize / 2);
+        
+        popup.style.left = `${x}px`;
+        popup.style.top = `${y}px`;
+        popup.style.transform = 'translate(-50%, -50%)';
+    } else {
+        // Fallback to center if board not found
+        popup.style.left = '50%';
+        popup.style.top = '50%';
+        popup.style.transform = 'translate(-50%, -50%)';
+    }
     
     document.body.appendChild(popup);
     
     if (window.motion) {
-        // Enhanced Framer Motion animation
+        // Simple animation: fade in, move up gently, fade out
         window.motion.animate(popup, 
             { 
-                scale: [0, 1.2, 1], 
-                opacity: [0, 1, 1],
-                rotate: [-180, 0],
-                y: [0, -20]
+                opacity: [0, 1],
+                y: [0, -30] // Move up only 30px over the duration (gentler movement)
             },
             { 
-                duration: 0.6,
+                duration: 2.5,
                 ease: "easeOut",
-                onComplete: () => {
-                    window.motion.animate(popup, {
-                        y: -50,
-                        opacity: 0,
-                        scale: 0.8
-                    }, {
-                        duration: 0.4,
-                        delay: 0.2,
-                        ease: "easeIn",
-                        onComplete: () => popup.remove()
-                    });
-                }
+                onComplete: () => popup.remove()
             }
         );
+    } else {
+        // Fallback CSS animation
+        popup.style.animation = 'scorePopup 2.5s ease-out forwards';
+        setTimeout(() => popup.remove(), 2500);
     }
 }
 
@@ -159,8 +195,8 @@ function animateGameOverModal(modal) {
 }
 
 // Enhanced showScorePopup function
-function showScorePopup(score) {
-    animateScorePopup(score);
+function showScorePopup(score, row, col) {
+    animateScorePopup(score, row, col);
 }
 
 // Enhanced markAreaCaptured function
@@ -274,6 +310,7 @@ window.showScorePopup = showScorePopup;
 window.markAreaCaptured = markAreaCaptured;
 window.markMultipleAreasCaptured = markMultipleAreasCaptured;
 window.selectPiece = selectPiece;
+window.animateScoreCountUp = animateScoreCountUp;
 
 // Initialize animations when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {

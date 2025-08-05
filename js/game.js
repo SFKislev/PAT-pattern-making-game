@@ -11,8 +11,102 @@ let game = {
     firstPiecePlaced: false
 };
 
+// Sound system
+const audioCache = new Map();
+
+function preloadSounds() {
+    const soundsToPreload = {
+        success: ['success1.wav', 'success2.wav', 'success3.wav', 'success4.wav'],
+        place: ['place3.wav', 'place2.wav', 'place1.wav', 'place4.wav'],
+        toggle: ['toggle.wav'],
+        newGame: ['newgame.wav']
+    };
+    
+    let loadedCount = 0;
+    const totalSounds = Object.values(soundsToPreload).flat().length;
+    
+    Object.entries(soundsToPreload).forEach(([category, sounds]) => {
+        sounds.forEach(soundFile => {
+            const audio = new Audio(`sounds/${category}/${soundFile}`);
+            audio.volume = category === 'success' ? 0.7 : category === 'place' ? 0.6 : category === 'newGame' ? 0.8 : 0.5;
+            
+            audio.addEventListener('canplaythrough', () => {
+                loadedCount++;
+                console.log(`Loaded sound: ${category}/${soundFile} (${loadedCount}/${totalSounds})`);
+            });
+            
+            audio.addEventListener('error', (error) => {
+                console.warn(`Failed to load sound: ${category}/${soundFile}`, error);
+            });
+            
+            audioCache.set(`${category}/${soundFile}`, audio);
+        });
+    });
+}
+
+// Sound utility functions
+function playSuccessSound() {
+    const successSounds = ['success1.wav', 'success2.wav', 'success3.wav', 'success4.wav'];
+    const randomSound = successSounds[Math.floor(Math.random() * successSounds.length)];
+    const audio = audioCache.get(`success/${randomSound}`);
+    
+    if (audio) {
+        // Clone the audio to allow overlapping sounds
+        const audioClone = audio.cloneNode();
+        audioClone.play().catch(error => {
+            console.log('Audio playback failed:', error);
+        });
+    }
+}
+
+function playPlaceSound() {
+    const placeSounds = ['place3.wav', 'place2.wav', 'place1.wav', 'place4.wav'];
+    const randomSound = placeSounds[Math.floor(Math.random() * placeSounds.length)];
+    const audio = audioCache.get(`place/${randomSound}`);
+    
+    if (audio) {
+        // Clone the audio to allow overlapping sounds
+        const audioClone = audio.cloneNode();
+        audioClone.play().catch(error => {
+            console.log('Audio playback failed:', error);
+        });
+    }
+}
+
+function playToggleSound() {
+    const audio = audioCache.get('toggle/toggle.wav');
+    
+    if (audio) {
+        // Clone the audio to allow overlapping sounds
+        const audioClone = audio.cloneNode();
+        audioClone.play().catch(error => {
+            console.log('Audio playback failed:', error);
+        });
+    }
+}
+
+function playNewGameSound() {
+    const audio = audioCache.get('newGame/newgame.wav');
+    
+    if (audio) {
+        // Clone the audio to allow overlapping sounds
+        const audioClone = audio.cloneNode();
+        audioClone.play().catch(error => {
+            console.log('Audio playback failed:', error);
+        });
+    }
+}
+
 // Core game functions
 function initGame() {
+    // Preload all sounds
+    preloadSounds();
+    
+    // Default to 2 players if no specific count provided
+    initGameWithPlayerCount(2);
+}
+
+function initGameWithPlayerCount(playerCount) {
     game.grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
     game.currentPlayer = 0;
     game.marketplace = [];
@@ -22,7 +116,6 @@ function initGame() {
     game.gameOver = false;
     game.firstPiecePlaced = false;
     
-    const playerCount = parseInt(document.getElementById('playerCount').value);
     game.players = [];
     for (let i = 0; i < playerCount; i++) {
         game.players.push({
@@ -111,6 +204,9 @@ function placePiece(piece, row, col) {
         }
     }
     
+    // Play place sound
+    playPlaceSound();
+    
     game.firstPiecePlaced = true;
     
     // Check which groups exist and are enclosed AFTER placing the piece
@@ -143,8 +239,34 @@ function placePiece(piece, row, col) {
     }
     
     if (score > 0) {
+        // Play success sound
+        playSuccessSound();
+        
+        const oldScore = game.players[game.currentPlayer].score;
         game.players[game.currentPlayer].score += score;
-        showScorePopup(score);
+        
+        // Trigger count-up animation for the score display
+        const playerIndex = game.currentPlayer;
+        console.log(`Player ${playerIndex} earned ${score} points. Old score: ${oldScore}, New score: ${game.players[playerIndex].score}`);
+        setTimeout(() => {
+            const playerScoreDiv = document.querySelectorAll('.player-score')[playerIndex];
+            if (playerScoreDiv) {
+                const scoreElement = playerScoreDiv.querySelector('span');
+                if (scoreElement) {
+                    console.log(`Found score element for player ${playerIndex}, triggering animation`);
+                    animateScoreCountUp(scoreElement, oldScore, game.players[playerIndex].score);
+                } else {
+                    console.log(`Score element not found for player ${playerIndex}`);
+                }
+            } else {
+                console.log(`Player score div not found for player ${playerIndex}`);
+            }
+        }, 100); // Small delay to ensure DOM is updated
+        
+        // Calculate the center position of the placed piece for the score popup
+        const pieceCenterRow = row + Math.floor(piece.shape.length / 2);
+        const pieceCenterCol = col + Math.floor(piece.shape[0].length / 2);
+        showScorePopup(score, pieceCenterRow, pieceCenterCol);
     }
     
     // Remove piece from marketplace and add new one
@@ -309,13 +431,13 @@ function markAreaCaptured(cells, isMultiple = false) {
                 }
             }, index * 30);
         });
-    }, 2000 + (cells.length * 30));
+    }, 4000 + (cells.length * 30));
 }
 
 function markMultipleAreasCaptured(groupsArray) {
     console.log('Marking multiple areas captured:', groupsArray.length, 'groups');
     
-    const totalAnimationTime = 2000; // 2 seconds total
+    const totalAnimationTime = 4000; // 4 seconds total
     const timePerGroup = totalAnimationTime / groupsArray.length;
     
     groupsArray.forEach((cells, groupIndex) => {
