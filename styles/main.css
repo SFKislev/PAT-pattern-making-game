@@ -462,11 +462,21 @@ body {
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
-.game-over {
+.game-over-backdrop {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-over {
+    position: relative;
     background: #ffffff;
     padding: 40px;
     border-radius: 15px;
@@ -474,16 +484,115 @@ body {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     border: 1px solid #dee2e6;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
 }
 
-.game-over h2 {
-    color: #4CAF50;
+.game-over-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.2s ease;
+}
+
+.game-over-close:hover {
+    color: #374151;
+}
+
+.game-over-logo {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+.game-over-logo-img {
+    width: 80px;
+    height: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.game-over-winner {
+    color: #374151;
     margin-bottom: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
 }
 
 .final-scores {
     margin: 20px 0;
     text-align: left;
+}
+
+.final-score-item {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.player-name {
+    width: fit-content;
+    font-weight: 500;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.progress-bar {
+    width: 60%;
+    min-width: 100px;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #6b7280;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.final-score-value {
+    font-size: 0.625rem;
+    font-weight: 400;
+    color: #9ca3af;
+    margin-left: 8px;
+}
+
+.play-again-btn {
+    background: #e5e7eb;
+    color: #374151;
+    border: none;
+    padding: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+    margin-top: 8px;
+}
+
+.play-again-btn:hover {
+    background: #d1d5db;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
 .score-popup {

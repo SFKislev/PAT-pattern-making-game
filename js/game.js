@@ -516,17 +516,48 @@ function endGame() {
         prev.score > current.score ? prev : current
     );
     
+    // Create backdrop
+    const backdrop = document.createElement('div');
+    backdrop.className = 'game-over-backdrop';
+    
     const gameOverDiv = document.createElement('div');
     gameOverDiv.className = 'game-over';
+    
+    // Calculate progress percentages
+    const maxScore = Math.max(...game.players.map(p => p.score));
+    const progressData = game.players.map(p => ({
+        name: p.name,
+        score: p.score,
+        percentage: maxScore > 0 ? (p.score / maxScore) * 100 : 0
+    }));
+    
     gameOverDiv.innerHTML = `
-        <h2>Game Over!</h2>
-        <h3>${winner.name} Wins!</h3>
+        <button class="game-over-close" onclick="this.parentElement.parentElement.remove();">
+            <i class="ri-close-line"></i>
+        </button>
+        <div class="game-over-logo">
+            <img src="pat2.svg" alt="Game Logo" class="game-over-logo-img">
+        </div>
+        <h3 class="game-over-winner">${winner.name} Wins</h3>
         <div class="final-scores">
-            ${game.players.map(p => `
-                <div>${p.name}: ${p.score} points</div>
+            ${progressData.map(p => `
+                <div class="final-score-item">
+                    <span class="player-name">${p.name}</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${p.percentage}%"></div>
+                    </div>
+                    <span class="final-score-value">${p.score}</span>
+                </div>
             `).join('')}
         </div>
-        <button onclick="initGame(); this.parentElement.remove();">Play Again</button>
+        <button class="play-again-btn group relative" onclick="initGame(); this.parentElement.parentElement.remove();">
+            <i class="ri-refresh-line"></i>
+            <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">Play Again</span>
+        </button>
     `;
-    document.body.appendChild(gameOverDiv);
-} 
+    
+    backdrop.appendChild(gameOverDiv);
+    document.body.appendChild(backdrop);
+}
+
+ 
