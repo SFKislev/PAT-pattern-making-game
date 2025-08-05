@@ -462,7 +462,40 @@ body {
     }
 }
 
-/* Group visualization with simple white overlay - using box-shadow to avoid pattern conflicts */
-.group-overlay {
-    box-shadow: inset 0 0 0 30px rgba(255, 255, 255, 0.5) !important;
+/* Group visualization with separate overlays for color and pattern groups */
+.group-overlay-color {
+    box-shadow: inset 0 0 0 30px rgba(255, 255, 255, 0.3) !important;
+    outline: 1px solid rgba(0, 0, 0) !important;
+}
+
+.group-overlay-pattern {
+    box-shadow: inset 0 0 0 30px rgba(255, 255, 255, 0.8) !important;
+    outline: 1px solid rgba(0, 0, 0) !important;
+}
+
+/* Group value tooltips */
+.group-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: rgb(0, 0, 0);
+    border-radius: 12px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 2px;
+}
+
+.group-tooltip.closed {
+    background: rgba(34, 197, 94, 0.9);
+    color: rgb(0, 0, 0);
+}
+
+.group-tooltip.open {
+    background: rgba(255, 255, 255, 0.8);
 }

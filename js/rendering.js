@@ -170,22 +170,103 @@ function highlightGroups(row, col) {
 
     // Find color group
     const colorGroup = findGroup(row, col, 'color', hoveredCell.color);
+    const isColorGroupClosed = isGroupCompletelyEnclosed(colorGroup, 'color', hoveredCell.color);
     
     // Find pattern group
     const patternGroup = findGroup(row, col, 'pattern', hoveredCell.pattern);
+    const isPatternGroupClosed = isGroupCompletelyEnclosed(patternGroup, 'pattern', hoveredCell.pattern);
     
-    // Combine both groups (remove duplicates)
-    const allCells = new Set();
-    colorGroup.forEach(([r, c]) => allCells.add(`${r},${c}`));
-    patternGroup.forEach(([r, c]) => allCells.add(`${r},${c}`));
+    // Check if groups are identical (same cells)
+    const colorGroupSet = new Set(colorGroup.map(([r, c]) => `${r},${c}`));
+    const patternGroupSet = new Set(patternGroup.map(([r, c]) => `${r},${c}`));
+    const groupsIdentical = colorGroupSet.size === patternGroupSet.size && 
+                           [...colorGroupSet].every(cell => patternGroupSet.has(cell));
     
-    // Apply overlay to all cells in both groups
-    allCells.forEach(cellKey => {
-        const [row, col] = cellKey.split(',').map(Number);
+    // Store group data for alternating overlay
+    const groupData = {
+        colorGroup,
+        patternGroup,
+        colorGroupSet,
+        patternGroupSet,
+        groupsIdentical,
+        isColorGroupClosed,
+        isPatternGroupClosed
+    };
+    
+    // Start alternating overlay animation (tooltips will be handled by the alternating function)
+    startAlternatingOverlay(groupData);
+}
+
+function startAlternatingOverlay(groupData) {
+    // Clear any existing overlay intervals
+    if (window.overlayInterval) {
+        clearInterval(window.overlayInterval);
+    }
+    
+    // Clear any existing overlays and tooltips
+    clearAllOverlays();
+    clearAllTooltips();
+    
+    let showColor = true;
+    
+    // Function to apply current overlay and tooltip
+    const applyOverlayAndTooltip = () => {
+        clearAllOverlays();
+        clearAllTooltips();
+        
+        if (groupData.groupsIdentical) {
+            // If groups are identical, show color overlay and tooltip
+            applyColorOverlay(groupData.colorGroup);
+            showGroupTooltip(groupData.colorGroup, 'both', groupData.colorGroup.length, groupData.isColorGroupClosed);
+        } else {
+            // Alternate between color and pattern overlays and tooltips
+            if (showColor) {
+                applyColorOverlay(groupData.colorGroup);
+                showGroupTooltip(groupData.colorGroup, 'color', groupData.colorGroup.length, groupData.isColorGroupClosed);
+            } else {
+                applyPatternOverlay(groupData.patternGroup);
+                showGroupTooltip(groupData.patternGroup, 'pattern', groupData.patternGroup.length, groupData.isPatternGroupClosed);
+            }
+            showColor = !showColor;
+        }
+    };
+    
+    // Apply initial overlay and tooltip
+    applyOverlayAndTooltip();
+    
+    // Set up interval for alternating (only if groups are not identical)
+    if (!groupData.groupsIdentical) {
+        window.overlayInterval = setInterval(applyOverlayAndTooltip, 1000);
+    }
+}
+
+function applyColorOverlay(colorGroup) {
+    colorGroup.forEach(([row, col]) => {
         const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
         if (cell) {
-            cell.classList.add('group-overlay');
+            cell.classList.add('group-overlay-color');
         }
+    });
+}
+
+function applyPatternOverlay(patternGroup) {
+    patternGroup.forEach(([row, col]) => {
+        const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+        if (cell) {
+            cell.classList.add('group-overlay-pattern');
+        }
+    });
+}
+
+function clearAllOverlays() {
+    document.querySelectorAll('.cell').forEach(cell => {
+        cell.classList.remove('group-overlay-color', 'group-overlay-pattern');
+    });
+}
+
+function clearAllTooltips() {
+    document.querySelectorAll('.group-tooltip').forEach(tooltip => {
+        tooltip.remove();
     });
 }
 
@@ -275,9 +356,178 @@ function isGroupCompletelyEnclosed(group, type, value) {
     return true;
 }
 
+function showNonOverlappingTooltips(colorGroup, patternGroup, isColorGroupClosed, isPatternGroupClosed) {
+    const colorEdges = findGroupExtremes(colorGroup);
+    const patternEdges = findGroupExtremes(patternGroup);
+    
+    // Define position priority order for each tooltip
+    const positionPairs = [
+        ['right', 'left'],     // Color right, pattern left
+        ['bottom', 'top'],     // Color bottom, pattern top  
+        ['right', 'bottom'],   // Color right, pattern bottom
+        ['left', 'right'],     // Color left, pattern right
+        ['top', 'bottom'],     // Color top, pattern bottom
+        ['left', 'top']        // Color left, pattern top
+    ];
+    
+    // Try each position pair until we find one that works for both groups
+    let colorPosition, patternPosition, colorCell, patternCell;
+    
+    for (const [colorPos, patternPos] of positionPairs) {
+        const colorCells = getEdgeCells(colorEdges, colorPos);
+        const patternCells = getEdgeCells(patternEdges, patternPos);
+        
+        if (colorCells.length > 0 && patternCells.length > 0) {
+            colorPosition = colorPos;
+            patternPosition = patternPos;
+            colorCell = colorCells[Math.floor(colorCells.length / 2)];
+            patternCell = patternCells[Math.floor(patternCells.length / 2)];
+            break;
+        }
+    }
+    
+    // Fallback - use any available positions
+    if (!colorPosition || !patternPosition) {
+        colorPosition = 'right';
+        patternPosition = 'bottom';
+        colorCell = colorGroup[0];
+        patternCell = patternGroup[0];
+    }
+    
+    // Create both tooltips
+    createTooltip(colorCell, colorGroup.length, 'color', isColorGroupClosed, colorPosition);
+    createTooltip(patternCell, patternGroup.length, 'pattern', isPatternGroupClosed, patternPosition);
+}
+
+function getEdgeCells(edges, position) {
+    switch (position) {
+        case 'right': return edges.rightmost || [];
+        case 'left': return edges.leftmost || [];
+        case 'top': return edges.topmost || [];
+        case 'bottom': return edges.bottommost || [];
+        default: return [];
+    }
+}
+
+function showGroupTooltip(group, groupType, value, isClosed) {
+    // Find the extreme edges of the group
+    const edges = findGroupExtremes(group);
+    
+    // Choose positioning - prefer right/bottom edges for visibility
+    let targetCell, position;
+    if (edges.rightmost.length > 0) {
+        targetCell = edges.rightmost[Math.floor(edges.rightmost.length / 2)];
+        position = 'right';
+    } else if (edges.bottommost.length > 0) {
+        targetCell = edges.bottommost[Math.floor(edges.bottommost.length / 2)];
+        position = 'bottom';
+    } else if (edges.leftmost.length > 0) {
+        targetCell = edges.leftmost[Math.floor(edges.leftmost.length / 2)];
+        position = 'left';
+    } else {
+        targetCell = edges.topmost[Math.floor(edges.topmost.length / 2)];
+        position = 'top';
+    }
+    
+    createTooltip(targetCell, value, groupType, isClosed, position);
+}
+
+function createTooltip(targetCell, value, groupType, isClosed, position) {
+    const [row, col] = targetCell;
+    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    if (!cell) return;
+    
+    // Create tooltip
+    const tooltip = document.createElement('div');
+    tooltip.className = `group-tooltip ${groupType}-group ${isClosed ? 'closed' : 'open'}`;
+    tooltip.setAttribute('data-position', position);
+    
+    // Create icon element
+    const icon = document.createElement('i');
+    if (groupType === 'color') {
+        icon.className = 'ri-palette-line';
+    } else if (groupType === 'pattern') {
+        icon.className = 'ri-layout-grid-line';
+    } else {
+        // For 'both' type, use a combined icon
+        icon.className = 'ri-layout-masonry-line';
+    }
+    
+    // Create text element
+    const text = document.createElement('span');
+    text.textContent = value;
+    
+    // Append icon and text to tooltip
+    tooltip.appendChild(icon);
+    tooltip.appendChild(text);
+    
+    // Position tooltip relative to cell
+    const cellRect = cell.getBoundingClientRect();
+    const gameBoard = document.getElementById('gameBoard');
+    const boardRect = gameBoard.getBoundingClientRect();
+    
+    // Position relative to game board
+    const cellRelativeX = cellRect.left - boardRect.left;
+    const cellRelativeY = cellRect.top - boardRect.top;
+    
+    switch (position) {
+        case 'right':
+            tooltip.style.left = `${cellRelativeX + cellRect.width}px`;
+            tooltip.style.top = `${cellRelativeY + cellRect.height / 2}px`;
+            tooltip.style.transform = 'translateY(-50%)';
+            break;
+        case 'bottom':
+            tooltip.style.left = `${cellRelativeX + cellRect.width / 2}px`;
+            tooltip.style.top = `${cellRelativeY + cellRect.height}px`;
+            tooltip.style.transform = 'translateX(-50%)';
+            break;
+        case 'left':
+            tooltip.style.right = `${boardRect.width - cellRelativeX}px`;
+            tooltip.style.top = `${cellRelativeY + cellRect.height / 2}px`;
+            tooltip.style.transform = 'translateY(-50%)';
+            break;
+        case 'top':
+            tooltip.style.left = `${cellRelativeX + cellRect.width / 2}px`;
+            tooltip.style.bottom = `${boardRect.height - cellRelativeY}px`;
+            tooltip.style.transform = 'translateX(-50%)';
+            break;
+    }
+    
+    gameBoard.appendChild(tooltip);
+}
+
+function findGroupExtremes(group) {
+    if (group.length === 0) return { topmost: [], bottommost: [], leftmost: [], rightmost: [] };
+    
+    let minRow = Infinity, maxRow = -Infinity;
+    let minCol = Infinity, maxCol = -Infinity;
+    
+    // Find extremes
+    group.forEach(([row, col]) => {
+        minRow = Math.min(minRow, row);
+        maxRow = Math.max(maxRow, row);
+        minCol = Math.min(minCol, col);
+        maxCol = Math.max(maxCol, col);
+    });
+    
+    // Find all cells at each extreme
+    const topmost = group.filter(([row, col]) => row === minRow);
+    const bottommost = group.filter(([row, col]) => row === maxRow);
+    const leftmost = group.filter(([row, col]) => col === minCol);
+    const rightmost = group.filter(([row, col]) => col === maxCol);
+    
+    return { topmost, bottommost, leftmost, rightmost };
+}
+
 function handleCellLeave() {
     // Only clear highlights if we're highlighting groups (not placing pieces)
     if (!game.selectedPiece) {
+        // Clear the alternating overlay interval
+        if (window.overlayInterval) {
+            clearInterval(window.overlayInterval);
+            window.overlayInterval = null;
+        }
+        
         document.querySelectorAll('.cell').forEach(cell => {
             // Remove old classes (backwards compatibility)
             cell.classList.remove(
@@ -286,8 +536,11 @@ function handleCellLeave() {
                 'highlight-edge-both'
             );
             
-            // Remove overlay class
-            cell.classList.remove('group-overlay');
+            // Remove all overlay classes
+            cell.classList.remove('group-overlay-color', 'group-overlay-pattern');
         });
+        
+        // Remove all tooltips
+        clearAllTooltips();
     }
 } 
