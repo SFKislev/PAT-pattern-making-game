@@ -122,49 +122,64 @@ function renderPlayers() {
 }
 
 function renderMarketplace() {
+    // Render to both sidebar and desktop marketplaces
     const marketplaceEl = document.getElementById('marketplace');
+    const marketplaceDesktopEl = document.getElementById('marketplaceDesktop');
+    
+    // Clear both marketplaces
     marketplaceEl.innerHTML = '';
+    marketplaceDesktopEl.innerHTML = '';
     
     game.marketplace.forEach((piece) => {
-        const pieceEl = document.createElement('div');
-        pieceEl.className = 'piece';
-        pieceEl.setAttribute('data-piece-id', piece.id);
-        if (game.selectedPiece && game.selectedPiece.id === piece.id) {
-            pieceEl.classList.add('selected');
-        }
-        
-        const gridEl = document.createElement('div');
-        gridEl.className = 'piece-grid';
-        
-        piece.shape.forEach(row => {
-            const rowEl = document.createElement('div');
-            rowEl.className = 'piece-row';
-            
-            row.forEach(cell => {
-                const cellEl = document.createElement('div');
-                cellEl.className = 'piece-cell';
-                if (cell) {
-                    cellEl.style.backgroundColor = piece.color;
-                    cellEl.classList.add(`pattern-${piece.pattern}`);
-                }
-                rowEl.appendChild(cellEl);
-            });
-            
-            gridEl.appendChild(rowEl);
-        });
-        
-        pieceEl.appendChild(gridEl);
-        pieceEl.addEventListener('click', () => selectPiece(piece));
-        
-        // Add drag functionality
-        pieceEl.draggable = true;
-        pieceEl.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', piece.id);
-            selectPiece(piece);
-        });
-        
+        // Create piece element for sidebar marketplace
+        const pieceEl = createPieceElement(piece);
         marketplaceEl.appendChild(pieceEl);
+        
+        // Create piece element for desktop marketplace
+        const pieceDesktopEl = createPieceElement(piece);
+        marketplaceDesktopEl.appendChild(pieceDesktopEl);
     });
+}
+
+function createPieceElement(piece) {
+    const pieceEl = document.createElement('div');
+    pieceEl.className = 'piece';
+    pieceEl.setAttribute('data-piece-id', piece.id);
+    if (game.selectedPiece && game.selectedPiece.id === piece.id) {
+        pieceEl.classList.add('selected');
+    }
+    
+    const gridEl = document.createElement('div');
+    gridEl.className = 'piece-grid';
+    
+    piece.shape.forEach(row => {
+        const rowEl = document.createElement('div');
+        rowEl.className = 'piece-row';
+        
+        row.forEach(cell => {
+            const cellEl = document.createElement('div');
+            cellEl.className = 'piece-cell';
+            if (cell) {
+                cellEl.style.backgroundColor = piece.color;
+                cellEl.classList.add(`pattern-${piece.pattern}`);
+            }
+            rowEl.appendChild(cellEl);
+        });
+        
+        gridEl.appendChild(rowEl);
+    });
+    
+    pieceEl.appendChild(gridEl);
+    pieceEl.addEventListener('click', () => selectPiece(piece));
+    
+    // Add drag functionality
+    pieceEl.draggable = true;
+    pieceEl.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', piece.id);
+        selectPiece(piece);
+    });
+    
+    return pieceEl;
 }
 
 function selectPiece(piece) {

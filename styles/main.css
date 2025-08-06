@@ -255,6 +255,11 @@ body {
     position: relative;
 }
 
+/* Left sidebar - hidden by default on desktop */
+.left-sidebar {
+    display: none;
+}
+
 .game-board-container {
     position: relative;
     display: flex;

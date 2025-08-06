@@ -1,0 +1,201 @@
+/* Responsive layout for short screens */
+@media (max-height: 800px) {
+    /* Show left sidebar on smaller screens */
+    .left-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+        position: fixed;
+        left: 20px;
+        top: 20px;
+        z-index: 100;
+        min-width: 200px;
+        max-width: 250px;
+    }
+    
+    /* Create a single inline container for logo and new game button */
+    .logo-container {
+        position: static;
+        bottom: auto;
+        left: auto;
+        transform: none;
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Hide subtitle in short screen mode */
+    .logo-subtitle {
+        display: none;
+    }
+    
+    /* Make new game button inline with logo */
+    .new-game-container {
+        position: static;
+        bottom: auto;
+        right: auto;
+        transform: none;
+        margin-bottom: 0;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    /* Fix tooltip positioning for short screens */
+    .new-game-btn .absolute {
+        bottom: auto;
+        left: auto;
+        transform: none;
+        top: 50%;
+        left: 100%;
+        margin-left: 8px;
+        margin-top: -50%;
+    }
+    
+    .marketplace-container {
+        position: static;
+        top: auto;
+        left: auto;
+        transform: none;
+        width: auto;
+        background: transparent;
+        padding: 0;
+    }
+    
+    /* Adjust marketplace pieces for sidebar */
+    .pieces-container {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .piece {
+        padding: 8px;
+    }
+    
+    .piece-cell {
+        width: 20px;
+        height: 20px;
+    }
+    
+    /* Hide desktop elements on smaller screens */
+    .desktop-logo,
+    .desktop-new-game,
+    .desktop-marketplace {
+        display: none;
+    }
+    
+    /* Move game board to the right */
+    .game-board-container {
+        margin-left: 280px; /* Space for sidebar + some air */
+    }
+    
+    /* Keep game board at original size - no responsive sizing */
+    /* .game-board and .cell sizing removed to keep original 30px */
+    
+    /* Only adjust sizes, keep original positioning */
+    .control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 12px;
+    }
+    
+    .pattern-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 12px;
+    }
+}
+
+/* Even smaller screens */
+@media (max-height: 600px) {
+    .left-sidebar {
+        left: 10px;
+        top: 10px;
+        min-width: 150px;
+        max-width: 180px;
+    }
+    
+    .game-board-container {
+        margin-left: 200px; /* Reduced space for smaller sidebar */
+    }
+    
+    .game-logo {
+        width: 80px;
+    }
+    
+    .new-game-btn {
+        font-size: 18px;
+        padding: 8px;
+    }
+    
+    .piece-cell {
+        width: 16px;
+        height: 16px;
+    }
+    
+    /* Keep game board at original size - no responsive sizing */
+    /* .game-board and .cell sizing removed to keep original 30px */
+    
+    .player-info {
+        min-width: 250px;
+        max-width: 350px;
+        padding: 8px 6px;
+        margin-bottom: 10px;
+    }
+    
+    .player-score {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .player-avatar {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .control-btn,
+    .pattern-toggle {
+        width: 35px;
+        height: 35px;
+        font-size: 10px;
+    }
+}
+
+/* Very small screens - stack vertically */
+@media (max-height: 500px) {
+    .left-sidebar {
+        position: static;
+        left: auto;
+        top: auto;
+        flex-direction: row;
+        gap: 15px;
+        align-items: center;
+        min-width: auto;
+        max-width: none;
+    }
+    
+    .game-board-container {
+        margin-left: 0; /* Remove margin when stacked */
+    }
+    
+    .logo-container {
+        margin-bottom: 0;
+    }
+    
+    .new-game-container {
+        margin-bottom: 0;
+    }
+    
+    .marketplace-container {
+        margin-top: 0;
+    }
+    
+    .pieces-container {
+        flex-direction: row;
+        gap: 8px;
+    }
+} 

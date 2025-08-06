@@ -22,6 +22,7 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/responsive.css">
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -43,20 +44,69 @@
 <body class="bg-white text-gray-800">
     <!-- Main Game Area -->
     <div class="game-area">
-        <div class="game-board-container">
+        <!-- Left Sidebar for responsive layout -->
+        <div class="left-sidebar">
             <!-- Logo above player info -->
             <div class="logo-container">
                 <img src="pat2.svg" alt="Game Logo" class="game-logo">
                 <span class="logo-subtitle">a pattern making game</span>
+                <!-- New Game Button inline with logo -->
+                <div class="new-game-container">
+                    <button id="newGameBtn" class="new-game-btn group relative">
+                        <i class="ri-add-line"></i>
+                        <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">New Game</span>
+                    </button>
+                    <!-- Player Selection Popover -->
+                    <div id="playerSelectionPopover" class="player-selection-popover">
+                        <div class="popover-content">
+                            <div class="player-option" data-players="2">
+                                <span class="player-count">2 Players</span>
+                                <div class="player-circles">
+                                    <div class="player-circle" style="background-color: #9ca3af;"></div>
+                                    <div class="player-circle" style="background-color: #6b7280;"></div>
+                                </div>
+                            </div>
+                            <div class="player-option" data-players="3">
+                                <span class="player-count">3 Players</span>
+                                <div class="player-circles">
+                                    <div class="player-circle" style="background-color: #d1d5db;"></div>
+                                    <div class="player-circle" style="background-color: #9ca3af;"></div>
+                                    <div class="player-circle" style="background-color: #6b7280;"></div>
+                                </div>
+                            </div>
+                            <div class="player-option" data-players="4">
+                                <span class="player-count">4 Players</span>
+                                <div class="player-circles">
+                                    <div class="player-circle" style="background-color: #e5e7eb;"></div>
+                                    <div class="player-circle" style="background-color: #d1d5db;"></div>
+                                    <div class="player-circle" style="background-color: #9ca3af;"></div>
+                                    <div class="player-circle" style="background-color: #6b7280;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <!-- New Game Button opposite to logo -->
-            <div class="new-game-container">
-                <button id="newGameBtn" class="new-game-btn group relative">
+            <!-- Bottom Marketplace -->
+            <div class="marketplace-container">
+                <div class="pieces-container" id="marketplace"></div>
+            </div>
+        </div>
+        
+        <div class="game-board-container">
+            <!-- Logo for desktop layout -->
+            <div class="logo-container desktop-logo">
+                <img src="pat2.svg" alt="Game Logo" class="game-logo">
+                <span class="logo-subtitle">a pattern making game</span>
+            </div>
+            <!-- New Game Button for desktop layout -->
+            <div class="new-game-container desktop-new-game">
+                <button id="newGameBtnDesktop" class="new-game-btn group relative">
                     <i class="ri-add-line"></i>
                     <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">New Game</span>
                 </button>
                 <!-- Player Selection Popover -->
-                <div id="playerSelectionPopover" class="player-selection-popover">
+                <div id="playerSelectionPopoverDesktop" class="player-selection-popover">
                     <div class="popover-content">
                         <div class="player-option" data-players="2">
                             <span class="player-count">2 Players</span>
@@ -105,9 +155,9 @@
                     <span class="absolute bottom-full right-full mr-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">Undo (Z)</span>
                 </button>
             </div>
-            <!-- Bottom Marketplace -->
-            <div class="marketplace-container">
-                <div class="pieces-container" id="marketplace"></div>
+            <!-- Bottom Marketplace for desktop layout -->
+            <div class="marketplace-container desktop-marketplace">
+                <div class="pieces-container" id="marketplaceDesktop"></div>
             </div>
         </div>
     </div>

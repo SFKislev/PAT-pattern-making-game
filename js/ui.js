@@ -83,6 +83,7 @@ function flipPiece() {
 
 // Initialize controls
 document.getElementById('newGameBtn').addEventListener('click', showPlayerSelectionPopover);
+document.getElementById('newGameBtnDesktop').addEventListener('click', showPlayerSelectionPopoverDesktop);
 document.getElementById('rotateBtn').addEventListener('click', rotatePiece);
 document.getElementById('flipBtn').addEventListener('click', flipPiece);
 document.getElementById('undoBtn').addEventListener('click', undoLastMove);
@@ -93,8 +94,18 @@ function showPlayerSelectionPopover() {
     popover.classList.add('show');
 }
 
+function showPlayerSelectionPopoverDesktop() {
+    const popover = document.getElementById('playerSelectionPopoverDesktop');
+    popover.classList.add('show');
+}
+
 function hidePlayerSelectionPopover() {
     const popover = document.getElementById('playerSelectionPopover');
+    popover.classList.remove('show');
+}
+
+function hidePlayerSelectionPopoverDesktop() {
+    const popover = document.getElementById('playerSelectionPopoverDesktop');
     popover.classList.remove('show');
 }
 
@@ -109,7 +120,7 @@ function selectPlayerCount(playerCount) {
 
 // Initialize popover event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle player option clicks
+    // Handle player option clicks for both popovers
     document.querySelectorAll('.player-option').forEach(option => {
         option.addEventListener('click', function() {
             const playerCount = this.getAttribute('data-players');
@@ -117,13 +128,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Close popover when clicking outside
+    // Close popovers when clicking outside
     document.addEventListener('click', function(e) {
         const popover = document.getElementById('playerSelectionPopover');
+        const popoverDesktop = document.getElementById('playerSelectionPopoverDesktop');
         const newGameBtn = document.getElementById('newGameBtn');
+        const newGameBtnDesktop = document.getElementById('newGameBtnDesktop');
         
         if (!popover.contains(e.target) && !newGameBtn.contains(e.target)) {
             hidePlayerSelectionPopover();
+        }
+        
+        if (!popoverDesktop.contains(e.target) && !newGameBtnDesktop.contains(e.target)) {
+            hidePlayerSelectionPopoverDesktop();
         }
     });
 });
