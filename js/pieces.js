@@ -27,7 +27,6 @@ const SHAPES = [
     [[1, 1, 1], [0, 1, 0], [0, 1, 0]], // Tree
     [[1, 0], [1, 1], [1, 0]], // Small T
     [[1, 1, 0], [0, 1, 1], [0, 0, 1]], // Diagonal
-    [[1, 0, 1], [0, 1, 0]], // X shape
     [[1, 1, 1], [1, 1, 1]], // 2x3 rectangle
     [[1, 1], [1, 1], [1, 1]], // 3x2 rectangle
     [[1, 0, 0], [1, 0, 0], [1, 1, 1]], // Big L
@@ -85,8 +84,8 @@ function generateRandomPiece() {
     
     // Filter shapes based on fill percentage
     let availableShapes;
-    if (fillPercentage >= 75) {
-        // After 75% full: only tiny pieces (1-3 cells)
+    if (fillPercentage >= 85) {
+        // After 85% full: only tiny pieces (1-3 cells)
         availableShapes = SHAPES.filter(shape => {
             const cellCount = shape.flat().filter(cell => cell === 1).length;
             return cellCount <= 3;
