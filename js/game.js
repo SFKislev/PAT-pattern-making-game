@@ -161,11 +161,15 @@ function initGameWithPlayerCount(playerCount, gridSize = 12) {
         const playerInfo = document.querySelector('.player-info');
         if (playerInfo) {
             playerInfo.style.width = `${totalWidth}px`;
-            // Add class for small grid size to adjust player name styling
+            // Add classes for grid size to adjust player name styling
             if (gridSize === 10) {
                 playerInfo.classList.add('small-grid');
-            } else {
+                playerInfo.classList.remove('medium-grid');
+            } else if (gridSize === 12) {
+                playerInfo.classList.add('medium-grid');
                 playerInfo.classList.remove('small-grid');
+            } else {
+                playerInfo.classList.remove('small-grid', 'medium-grid');
             }
         }
     }

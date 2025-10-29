@@ -388,6 +388,31 @@ body {
     display: none;
 }
 
+/* Medium grid adjustments for 3+ players */
+.player-info.medium-grid:has(.player-score:nth-child(3)) .player-score,
+.player-info.medium-grid:has(.player-score:nth-child(4)) .player-score {
+    gap: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.player-info.medium-grid:has(.player-score:nth-child(3)) .player-name-input,
+.player-info.medium-grid:has(.player-score:nth-child(4)) .player-name-input {
+    font-size: 0.75rem;
+    margin-right: 4px;
+    min-width: 40px;
+    max-width: 80px;
+}
+
+.player-info.medium-grid:has(.player-score:nth-child(3)) .player-score span:last-child,
+.player-info.medium-grid:has(.player-score:nth-child(4)) .player-score span:last-child {
+    font-size: 0.75rem;
+}
+
+.player-info.medium-grid:has(.player-score:nth-child(4)) .player-avatar {
+    display: none;
+}
+
 .game-board {
     display: grid;
     grid-template-columns: var(--grid-columns, repeat(14, 32px));
