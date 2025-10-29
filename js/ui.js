@@ -1,5 +1,8 @@
 // UI Event Handlers and Controls
 
+// Global grid size selection
+let selectedGridSize = 12; // Default to small (12x12)
+
 // Keyboard controls - ensure they work regardless of focus
 function handleKeyboardControls(e) {
     // Only handle if not typing in input fields
@@ -111,11 +114,25 @@ function hidePlayerSelectionPopoverDesktop() {
 
 function selectPlayerCount(playerCount) {
     hidePlayerSelectionPopover();
-    
+    hidePlayerSelectionPopoverDesktop();
+
     // Play new game sound
     playNewGameSound();
-    
-    initGameWithPlayerCount(parseInt(playerCount));
+
+    initGameWithPlayerCount(parseInt(playerCount), selectedGridSize);
+}
+
+// Grid size selection functions
+function selectGridSize(gridSize) {
+    selectedGridSize = parseInt(gridSize);
+
+    // Update selected state for both popovers
+    document.querySelectorAll('.grid-size-option').forEach(option => {
+        option.classList.remove('selected');
+        if (parseInt(option.getAttribute('data-grid-size')) === selectedGridSize) {
+            option.classList.add('selected');
+        }
+    });
 }
 
 // Initialize popover event listeners
@@ -125,6 +142,15 @@ document.addEventListener('DOMContentLoaded', function() {
         option.addEventListener('click', function() {
             const playerCount = this.getAttribute('data-players');
             selectPlayerCount(playerCount);
+        });
+    });
+
+    // Handle grid size option clicks for both popovers
+    document.querySelectorAll('.grid-size-option').forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent closing the popover
+            const gridSize = this.getAttribute('data-grid-size');
+            selectGridSize(gridSize);
         });
     });
     

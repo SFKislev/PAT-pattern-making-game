@@ -1,5 +1,5 @@
 // Game constants
-const GRID_SIZE = 15;
+const GRID_SIZE = 14;
 const MARKETPLACE_SIZE = 7;
 const COLORS = ['#4A90E2', '#E74C3C', '#F2E642']; // Blue, Red, Yellow
 const PATTERNS = ['dots', 'boxes', 'diagonals'];
@@ -76,12 +76,12 @@ function getTransformedShape(piece) {
 function generateRandomPiece() {
     // Calculate grid fill percentage
     let filledCells = 0;
-    for (let i = 0; i < GRID_SIZE; i++) {
-        for (let j = 0; j < GRID_SIZE; j++) {
+    for (let i = 0; i < game.gridSize; i++) {
+        for (let j = 0; j < game.gridSize; j++) {
             if (game.grid[i][j]) filledCells++;
         }
     }
-    const fillPercentage = (filledCells / (GRID_SIZE * GRID_SIZE)) * 100;
+    const fillPercentage = (filledCells / (game.gridSize * game.gridSize)) * 100;
     
     // Filter shapes based on fill percentage
     let availableShapes;

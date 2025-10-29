@@ -9,8 +9,8 @@ function renderBoard() {
     const boardEl = document.getElementById('gameBoard');
     boardEl.innerHTML = '';
     
-    for (let i = 0; i < GRID_SIZE; i++) {
-        for (let j = 0; j < GRID_SIZE; j++) {
+    for (let i = 0; i < game.gridSize; i++) {
+        for (let j = 0; j < game.gridSize; j++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
             cell.dataset.row = i;
@@ -265,9 +265,9 @@ function handleCellHover(row, col) {
     // Show preview for ALL cells of the piece, even over filled cells
     for (let i = 0; i < shape.length; i++) {
         for (let j = 0; j < shape[0].length; j++) {
-            if (shape[i][j] && 
-                row + i < GRID_SIZE && 
-                col + j < GRID_SIZE &&
+            if (shape[i][j] &&
+                row + i < game.gridSize &&
+                col + j < game.gridSize &&
                 row + i >= 0 &&
                 col + j >= 0) {
                 const cell = document.querySelector(
@@ -476,7 +476,7 @@ function findGroup(startRow, startCol, type, value) {
         if (visited.has(key)) continue;
         visited.add(key);
 
-        if (row < 0 || row >= GRID_SIZE || col < 0 || col >= GRID_SIZE) continue;
+        if (row < 0 || row >= game.gridSize || col < 0 || col >= game.gridSize) continue;
         if (!game.grid[row][col] || game.grid[row][col][type] !== value) continue;
 
         group.push([row, col]);
@@ -501,7 +501,7 @@ function findGroupEdges(group, type, value) {
         let isEdge = false;
         for (const [nr, nc] of neighbors) {
             // Check if neighbor is outside bounds or not part of the group
-            if (nr < 0 || nr >= GRID_SIZE || nc < 0 || nc >= GRID_SIZE ||
+            if (nr < 0 || nr >= game.gridSize || nc < 0 || nc >= game.gridSize ||
                 !game.grid[nr][nc] || game.grid[nr][nc][type] !== value) {
                 isEdge = true;
                 break;
@@ -527,7 +527,7 @@ function isGroupCompletelyEnclosed(group, type, value) {
         
         for (const [nr, nc] of neighbors) {
             // If neighbor is out of bounds, group can't expand there, so it's fine
-            if (nr < 0 || nr >= GRID_SIZE || nc < 0 || nc >= GRID_SIZE) continue;
+            if (nr < 0 || nr >= game.gridSize || nc < 0 || nc >= game.gridSize) continue;
             
             // If neighbor is empty, the group could potentially expand
             if (!game.grid[nr][nc]) {

@@ -1,6 +1,7 @@
 // Game state
 let game = {
-    grid: Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null)),
+    grid: null, // Will be set dynamically based on selected grid size
+    gridSize: 12, // Default grid size
     players: [],
     currentPlayer: 0,
     marketplace: [],
@@ -103,18 +104,39 @@ function playNewGameSound() {
 function initGame() {
     // Preload all sounds
     preloadSounds();
-    
-    // Default to 2 players if no specific count provided
-    initGameWithPlayerCount(2);
+
+    // Default to 2 players and default grid size (12) if no specific values provided
+    initGameWithPlayerCount(2, 12);
 }
 
-function initGameWithPlayerCount(playerCount) {
+function initGameWithPlayerCount(playerCount, gridSize = 12) {
     // Clear any existing group highlights when starting a new game
     if (typeof clearAllGroupHighlights === 'function') {
         clearAllGroupHighlights();
     }
-    
-    game.grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
+
+    // Set the dynamic grid size for this game
+    game.gridSize = gridSize;
+    game.grid = Array(gridSize).fill().map(() => Array(gridSize).fill(null));
+
+    // Update CSS custom properties for dynamic grid sizing
+    const gameBoard = document.getElementById('gameBoard');
+    if (gameBoard) {
+        const cellSize = gridSize >= 14 ? 32 : gridSize >= 13 ? 33 : 35; // Adjust cell size for smaller grids
+        gameBoard.style.setProperty('--grid-columns', `repeat(${gridSize}, ${cellSize}px)`);
+        gameBoard.style.setProperty('--grid-rows', `repeat(${gridSize}, ${cellSize}px)`);
+
+        // Update cell dimensions
+        document.documentElement.style.setProperty('--cell-width', `${cellSize}px`);
+        document.documentElement.style.setProperty('--cell-height', `${cellSize}px`);
+
+        // Update player info width: cells * cellSize + gaps + padding + border
+        const totalWidth = (gridSize * cellSize) + ((gridSize - 1) * 1) + 20 + 4;
+        const playerInfo = document.querySelector('.player-info');
+        if (playerInfo) {
+            playerInfo.style.width = `${totalWidth}px`;
+        }
+    }
     game.currentPlayer = 0;
     game.marketplace = [];
     game.selectedPiece = null;
@@ -146,9 +168,9 @@ function canPlacePiece(piece, row, col) {
     const shape = piece.shape;
     
     // Check boundaries
-    if (row < 0 || col < 0 || 
-        row + shape.length > GRID_SIZE || 
-        col + shape[0].length > GRID_SIZE) {
+    if (row < 0 || col < 0 ||
+        row + shape.length > game.gridSize ||
+        col + shape[0].length > game.gridSize) {
         return false;
     }
     
@@ -180,8 +202,8 @@ function canPlacePiece(piece, row, col) {
                 ];
                 
                 for (const [nr, nc] of neighbors) {
-                    if (nr >= 0 && nr < GRID_SIZE && 
-                        nc >= 0 && nc < GRID_SIZE && 
+                    if (nr >= 0 && nr < game.gridSize &&
+                        nc >= 0 && nc < game.gridSize &&
                         game.grid[nr][nc]) {
                         touches = true;
                         break;
@@ -378,19 +400,19 @@ function getGroupKey(group, type, value) {
 }
 
 function findAllGroups(type, value) {
-    const visited = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(false));
+    const visited = Array(game.gridSize).fill().map(() => Array(game.gridSize).fill(false));
     const groups = [];
-    
-    for (let i = 0; i < GRID_SIZE; i++) {
-        for (let j = 0; j < GRID_SIZE; j++) {
+
+    for (let i = 0; i < game.gridSize; i++) {
+        for (let j = 0; j < game.gridSize; j++) {
             if (game.grid[i][j] && game.grid[i][j][type] === value && !visited[i][j]) {
                 const group = [];
                 const queue = [[i, j]];
                 
                 while (queue.length > 0) {
                     const [row, col] = queue.shift();
-                    
-                    if (row < 0 || row >= GRID_SIZE || col < 0 || col >= GRID_SIZE) continue;
+
+                    if (row < 0 || row >= game.gridSize || col < 0 || col >= game.gridSize) continue;
                     if (visited[row][col]) continue;
                     if (!game.grid[row][col] || game.grid[row][col][type] !== value) continue;
                     
@@ -422,7 +444,7 @@ function isGroupCompletelyEnclosed(group, type, value) {
         
         for (const [nr, nc] of neighbors) {
             // If neighbor is out of bounds, group can't expand there, so it's fine
-            if (nr < 0 || nr >= GRID_SIZE || nc < 0 || nc >= GRID_SIZE) continue;
+            if (nr < 0 || nr >= game.gridSize || nc < 0 || nc >= game.gridSize) continue;
             
             // If neighbor is empty, the group could potentially expand
             if (!game.grid[nr][nc]) {
@@ -536,8 +558,8 @@ function canAnyPieceBePlaced() {
                 
                 const tempPiece = { ...piece, shape };
                 
-                for (let i = 0; i < GRID_SIZE; i++) {
-                    for (let j = 0; j < GRID_SIZE; j++) {
+                for (let i = 0; i < game.gridSize; i++) {
+                    for (let j = 0; j < game.gridSize; j++) {
                         if (canPlacePiece(tempPiece, i, j)) {
                             return true;
                         }

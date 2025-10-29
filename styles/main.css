@@ -124,6 +124,46 @@ body {
     border-radius: 50%;
 }
 
+/* Popover Divider */
+.popover-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 8px 0;
+}
+
+/* Grid Size Options Container */
+.grid-size-options {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* Grid Size Options */
+.grid-size-option {
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    border-radius: 6px;
+    text-align: center;
+    min-width: 50px;
+}
+
+.grid-size-option:hover {
+    background: #f9fafb;
+}
+
+.grid-size-option.selected {
+    background: #dee2e6;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+}
+
+.grid-size-dimensions {
+    font-size: 12px;
+    font-weight: 500;
+    color: #374151;
+}
+
 /* Top Bar */
 .top-bar {
     position: fixed;
@@ -289,7 +329,7 @@ body {
     border-radius: 10px;
     border: 1px solid #dee2e6;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    width: 488px; /* Match total game board width: 15 cells * 30px + 14px gaps + 20px padding + 4px border */
+    width: 485px; /* Match total game board width: 14 cells * 32px + 13px gaps + 20px padding + 4px border */
     box-sizing: border-box;
     z-index: 10;
 }
@@ -325,8 +365,8 @@ body {
 
 .game-board {
     display: grid;
-    grid-template-columns: repeat(15, 30px);
-    grid-template-rows: repeat(15, 30px);
+    grid-template-columns: var(--grid-columns, repeat(14, 32px));
+    grid-template-rows: var(--grid-rows, repeat(14, 32px));
     gap: 1px;
     background: #dee2e6;
     padding: 10px;
@@ -335,8 +375,8 @@ body {
 }
 
 .cell {
-    width: 30px;
-    height: 30px;
+    width: var(--cell-width, 32px);
+    height: var(--cell-height, 32px);
     background: #ffffff;
     border: none;
     position: relative;
@@ -438,8 +478,8 @@ body {
 }
 
 .piece-cell {
-    width: 30px;
-    height: 30px;
+    width: var(--cell-width, 32px);
+    height: var(--cell-height, 32px);
     margin: 1px;
     position: relative;
     overflow: hidden;
