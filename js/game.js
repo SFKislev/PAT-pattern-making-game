@@ -14,8 +14,9 @@ let game = {
     isPlacingPiece: false
 };
 
-// Sound system
+// Sound system with audio pooling
 const audioCache = new Map();
+const POOL_SIZE = 5; // Number of instances per sound
 
 function preloadSounds() {
     const soundsToPreload = {
@@ -24,39 +25,64 @@ function preloadSounds() {
         toggle: ['toggle.wav'],
         newGame: ['newgame.wav']
     };
-    
+
     let loadedCount = 0;
     const totalSounds = Object.values(soundsToPreload).flat().length;
-    
+
     Object.entries(soundsToPreload).forEach(([category, sounds]) => {
         sounds.forEach(soundFile => {
-            const audio = new Audio(`sounds/${category}/${soundFile}`);
-            audio.volume = category === 'success' ? 0.7 : category === 'place' ? 0.6 : category === 'newGame' ? 0.8 : 0.5;
-            
-            audio.addEventListener('canplaythrough', () => {
-                loadedCount++;
-                console.log(`Loaded sound: ${category}/${soundFile} (${loadedCount}/${totalSounds})`);
-            });
-            
-            audio.addEventListener('error', (error) => {
-                console.warn(`Failed to load sound: ${category}/${soundFile}`, error);
-            });
-            
-            audioCache.set(`${category}/${soundFile}`, audio);
+            const key = `${category}/${soundFile}`;
+            const pool = [];
+
+            // Create a pool of audio instances for each sound
+            for (let i = 0; i < POOL_SIZE; i++) {
+                const audio = new Audio(`sounds/${category}/${soundFile}`);
+                audio.preload = 'auto';
+                audio.volume = category === 'success' ? 0.7 : category === 'place' ? 0.6 : category === 'newGame' ? 0.8 : 0.5;
+
+                audio.addEventListener('canplaythrough', () => {
+                    if (i === 0) { // Only count once per sound file
+                        loadedCount++;
+                        console.log(`Loaded sound: ${category}/${soundFile} (${loadedCount}/${totalSounds})`);
+                    }
+                });
+
+                audio.addEventListener('error', (error) => {
+                    console.warn(`Failed to load sound: ${category}/${soundFile}`, error);
+                });
+
+                pool.push(audio);
+            }
+
+            audioCache.set(key, { pool, currentIndex: 0 });
         });
     });
+}
+
+// Helper function to get next available audio from pool
+function getAudioFromPool(key) {
+    const cached = audioCache.get(key);
+    if (!cached) return null;
+
+    const { pool, currentIndex } = cached;
+    const audio = pool[currentIndex];
+
+    // Update index for next call (round-robin)
+    cached.currentIndex = (currentIndex + 1) % pool.length;
+
+    return audio;
 }
 
 // Sound utility functions
 function playSuccessSound() {
     const successSounds = ['success1.wav', 'success2.wav', 'success3.wav', 'success4.wav'];
     const randomSound = successSounds[Math.floor(Math.random() * successSounds.length)];
-    const audio = audioCache.get(`success/${randomSound}`);
-    
+    const audio = getAudioFromPool(`success/${randomSound}`);
+
     if (audio) {
-        // Clone the audio to allow overlapping sounds
-        const audioClone = audio.cloneNode();
-        audioClone.play().catch(error => {
+        // Reset to beginning if already playing
+        audio.currentTime = 0;
+        audio.play().catch(error => {
             console.log('Audio playback failed:', error);
         });
     }
@@ -65,36 +91,36 @@ function playSuccessSound() {
 function playPlaceSound() {
     const placeSounds = ['place3.wav', 'place2.wav', 'place1.wav', 'place4.wav'];
     const randomSound = placeSounds[Math.floor(Math.random() * placeSounds.length)];
-    const audio = audioCache.get(`place/${randomSound}`);
-    
+    const audio = getAudioFromPool(`place/${randomSound}`);
+
     if (audio) {
-        // Clone the audio to allow overlapping sounds
-        const audioClone = audio.cloneNode();
-        audioClone.play().catch(error => {
+        // Reset to beginning if already playing
+        audio.currentTime = 0;
+        audio.play().catch(error => {
             console.log('Audio playback failed:', error);
         });
     }
 }
 
 function playToggleSound() {
-    const audio = audioCache.get('toggle/toggle.wav');
-    
+    const audio = getAudioFromPool('toggle/toggle.wav');
+
     if (audio) {
-        // Clone the audio to allow overlapping sounds
-        const audioClone = audio.cloneNode();
-        audioClone.play().catch(error => {
+        // Reset to beginning if already playing
+        audio.currentTime = 0;
+        audio.play().catch(error => {
             console.log('Audio playback failed:', error);
         });
     }
 }
 
 function playNewGameSound() {
-    const audio = audioCache.get('newGame/newgame.wav');
-    
+    const audio = getAudioFromPool('newGame/newgame.wav');
+
     if (audio) {
-        // Clone the audio to allow overlapping sounds
-        const audioClone = audio.cloneNode();
-        audioClone.play().catch(error => {
+        // Reset to beginning if already playing
+        audio.currentTime = 0;
+        audio.play().catch(error => {
             console.log('Audio playback failed:', error);
         });
     }
