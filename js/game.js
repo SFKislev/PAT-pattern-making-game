@@ -122,7 +122,7 @@ function initGameWithPlayerCount(playerCount, gridSize = 12) {
     // Update CSS custom properties for dynamic grid sizing
     const gameBoard = document.getElementById('gameBoard');
     if (gameBoard) {
-        const cellSize = gridSize >= 14 ? 32 : gridSize >= 13 ? 33 : 35; // Adjust cell size for smaller grids
+        const cellSize = gridSize >= 14 ? 32 : gridSize >= 12 ? 33 : 35; // Adjust cell size for smaller grids
         gameBoard.style.setProperty('--grid-columns', `repeat(${gridSize}, ${cellSize}px)`);
         gameBoard.style.setProperty('--grid-rows', `repeat(${gridSize}, ${cellSize}px)`);
 
@@ -135,6 +135,12 @@ function initGameWithPlayerCount(playerCount, gridSize = 12) {
         const playerInfo = document.querySelector('.player-info');
         if (playerInfo) {
             playerInfo.style.width = `${totalWidth}px`;
+            // Add class for small grid size to adjust player name styling
+            if (gridSize === 10) {
+                playerInfo.classList.add('small-grid');
+            } else {
+                playerInfo.classList.remove('small-grid');
+            }
         }
     }
     game.currentPlayer = 0;
